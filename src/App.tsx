@@ -1,4 +1,4 @@
-
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +20,15 @@ import AuthPage from "./pages/AuthPage";
 const queryClient = new QueryClient();
 
 const App = () => {
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/ping`)
+      .then((res) => res.json())
+      .then((data) => setMsg(data.msg))
+      .catch((err) => console.error("Ping failed:", err));
+  }, []);
+
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
@@ -35,12 +44,14 @@ const App = () => {
                   <Route path="/destinations" element={<DestinationsPage />} />
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="/auth" element={<AuthPage />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Toaster />
                 <Sonner />
               </TooltipProvider>
+              <div style={{ position: "fixed", bottom: 10, right: 10, color: "gray" }}>
+                {msg && <small>API: {msg}</small>}
+              </div>
             </BrowserRouter>
           </AuthProvider>
         </AppProvider>
