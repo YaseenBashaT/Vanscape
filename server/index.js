@@ -1,13 +1,21 @@
-import express from 'express';
-import connectDB from './db.js';
-import dotenv from 'dotenv';
-import cors from 'cors';
+const express = require('express');
+const connectDB = require('./db.js');
+const dotenv = require('dotenv');
+const cors = require('cors');
+
+const vanRouter = require('./routes/vanRouter');
+const userRoutes = require('./routes/userRouter');
+const authRoutes = require('./routes/AuthRouter');
+const authMiddleware = require('./middleware/authMiddleware');
 
 dotenv.config();
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json());app.use('/api/van', vanRouter); 
+app.use('/api/auth', authRoutes);
+app.use('/api/users', authMiddleware, userRoutes); 
+
 
 connectDB();
 
