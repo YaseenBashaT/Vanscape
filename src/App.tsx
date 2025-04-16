@@ -23,7 +23,7 @@ const App = () => {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/ping`)
+    fetch(`http://localhost:5000/api/ping`)
       .then((res) => res.json())
       .then((data) => setMsg(data.msg))
       .catch((err) => console.error("Ping failed:", err));

@@ -12,7 +12,8 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
-app.use(express.json());app.use('/api/van', vanRouter); 
+app.use(express.json());
+app.use('/api/van', vanRouter); 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', authMiddleware, userRoutes); 
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import VanSearchBar from "@/components/vans/VanSearchBar";
@@ -7,14 +6,13 @@ import VanFilterToggle from "@/components/vans/VanFilterToggle";
 import VanFilterSidebar from "@/components/vans/VanFilterSidebar";
 import VanResultsHeader from "@/components/vans/VanResultsHeader";
 import VanResults from "@/components/vans/VanResults";
-import { vans } from "@/data/vansData";
 import { useAppContext } from "@/context/AppContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getVans } from "@/lib/getVans";
 
 const VansPage = () => {
-  // Get filter state from context
   const { 
     searchTerm, 
     setSearchTerm, 
@@ -26,12 +24,24 @@ const VansPage = () => {
     setSortOption
   } = useAppContext();
   
-  // Local state for mobile filter visibility
+  const [vans, setVans] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  // For desktop, we'll use a separate sidebar state
   const [showDesktopSidebar, setShowDesktopSidebar] = useState(true);
 
-  // Filter vans based on criteria
+  useEffect(() => {
+    async function fetchVans() {
+      const data = await getVans();
+      console.log("Fetched vans:", data);
+      setVans(data);
+      setLoading(false);
+    }
+  
+    fetchVans();
+  }, []);
+  
+
   let filteredVans = vans.filter(van => {
     const matchesSearch = van.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          van.location.toLowerCase().includes(searchTerm.toLowerCase());
@@ -41,7 +51,6 @@ const VansPage = () => {
     return matchesSearch && matchesType && matchesPrice;
   });
 
-  // Sort vans based on selected option
   filteredVans = [...filteredVans].sort((a, b) => {
     switch (sortOption) {
       case "price-low":
@@ -49,14 +58,12 @@ const VansPage = () => {
       case "price-high":
         return b.price - a.price;
       case "newest":
-        // In a real app, you would compare dates. For demo purposes, we'll use ID
         return b.id - a.id;
-      default: // featured
-        return 0; // maintain the original order
+      default:
+        return 0;
     }
   });
 
-  // Clear all filters
   const clearFilters = () => {
     setSearchTerm("");
     setVanType("all");
@@ -64,17 +71,18 @@ const VansPage = () => {
     setSortOption("featured");
   };
 
-  // Set initial sidebar state based on screen size
   useEffect(() => {
     const handleResize = () => {
       setShowDesktopSidebar(window.innerWidth >= 1024);
     };
-    
+
     window.addEventListener('resize', handleResize);
     handleResize();
-    
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <Layout>

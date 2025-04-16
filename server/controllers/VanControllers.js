@@ -1,73 +1,59 @@
 const VanService = require("../services/VanServices");
 
 exports.getAllVans = async (req, res) => {
-    try{
-        console.log('Fetching all vans...: Contrlr')
-        const vans = await VanService.getAllVans()
-        if(!vans){
-            return res.status(404).json({error: 'No vans found'})
-        }
-        console.log(vans)
-        res.status(200).json({'data': vans})
-    }catch(err){
-        console.error(err)
-        res.status(500).json({error: 'Internal server error'})
+    try {
+        const vans = await VanService.getAllVans();
+        res.status(200).json({ data: vans });
+    } catch (err) {
+        console.error("Error fetching vans:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
 exports.createVan = async (req, res) => {
-    try{
-        const { name, type, price, location, image, sleeps, available, description, features, specifications, images } = req.body;
-        const newVan = { name, type, price, location, image, sleeps, available, description, features, specifications, images }
-        const createdVan = await VanService.createVan(newVan)
-        res.status(201).json({'data': createdVan})
-    }catch(err){
-        console.error(err)
-        res.status(500).json({error: 'Internal server error'})
+    try {
+        const vanData = req.body;
+        const createdVan = await VanService.createVan(vanData);
+        res.status(201).json(createdVan);
+    } catch (err) {
+        console.error("Error creating van:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
 exports.getVanById = async (req, res) => {
-    try{
+    try {
         const { id } = req.params;
-        const van = await VanService.getVanById(id)
-        if(!van){
-            return res.status(404).json({error: 'Van not found'})
-        }
-        res.status(200).json({'data': van})
-    }catch(err){
-        console.error(err)
-        res.status(500).json({error: 'Internal server error'})
+        const van = await VanService.getVanById(id);
+        if (!van) return res.status(404).json({ error: "Van not found" });
+        res.status(200).json(van);
+    } catch (err) {
+        console.error("Error fetching van by ID:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
 exports.updateVan = async (req, res) => {
-    try{
+    try {
         const { id } = req.params;
-        const { name, type, price, location, image, sleeps, available, description, features, specifications, images } = req.body;
-        const updatedVan = { name, type, price, location, image, sleeps, available, description, features, specifications, images }
-        const van = await VanService.updateVan(id, updatedVan)
-        if(!van){
-            return res.status(404).json({error: 'Van not found'})
-        }
-        res.status(200).json({'data': van})
-    }catch(err){
-        console.error(err)
-        res.status(500).json({error: 'Internal server error'})
+        const vanData = req.body;
+        const updatedVan = await VanService.updateVan(id, vanData);
+        if (!updatedVan) return res.status(404).json({ error: "Van not found" });
+        res.status(200).json(updatedVan);
+    } catch (err) {
+        console.error("Error updating van:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
 exports.deleteVan = async (req, res) => {
-    try{
+    try {
         const { id } = req.params;
-        const van = await VanService.deleteVan(id)
-        if(!van){
-            return res.status(404).json({error: 'Van not found'})
-        }
-        res.status(200).json({'data': van})
-    }catch(err){
-        console.error(err)
-        res.status(500).json({error: 'Internal server error'})
+        const deletedVan = await VanService.deleteVan(id);
+        if (!deletedVan) return res.status(404).json({ error: "Van not found" });
+        res.status(200).json(deletedVan);
+    } catch (err) {
+        console.error("Error deleting van:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
-
+};
