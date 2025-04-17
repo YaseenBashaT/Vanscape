@@ -24,7 +24,7 @@ const VansPage = () => {
     setSortOption
   } = useAppContext();
   
-  const [vans, setVans] = useState([]);
+  const [vans, setVans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -32,17 +32,25 @@ const VansPage = () => {
 
   useEffect(() => {
     async function fetchVans() {
-      const data = await getVans();
-      console.log("Fetched vans:", data);
-      setVans(data);
-      setLoading(false);
+      try {
+        const data = await getVans();
+        console.log("Fetched vans:", data);
+        if (Array.isArray(data)) {
+          setVans(data);  // Ensure we only set vans if the data is an array
+        } else {
+          console.error("Fetched data is not an array:", data);
+        }
+      } catch (err) {
+        console.error("Error fetching vans:", err);
+      } finally {
+        setLoading(false);
+      }
     }
   
     fetchVans();
   }, []);
   
-
-  let filteredVans = vans.filter(van => {
+  const filteredVans = vans.filter(van => {
     const matchesSearch = van.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          van.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = vanType === "all" || van.type.toLowerCase() === vanType.toLowerCase();
@@ -51,7 +59,7 @@ const VansPage = () => {
     return matchesSearch && matchesType && matchesPrice;
   });
 
-  filteredVans = [...filteredVans].sort((a, b) => {
+  const sortedVans = [...filteredVans].sort((a, b) => {
     switch (sortOption) {
       case "price-low":
         return a.price - b.price;
@@ -177,13 +185,13 @@ const VansPage = () => {
             
             {/* Results Header */}
             <VanResultsHeader 
-              count={filteredVans.length}
+              count={sortedVans.length}
               sortOption={sortOption}
               setSortOption={setSortOption}
             />
             
             {/* Results Grid */}
-            <VanResults filteredVans={filteredVans} clearFilters={clearFilters} />
+            <VanResults filteredVans={sortedVans} clearFilters={clearFilters} />
           </div>
         </div>
       </div>

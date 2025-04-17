@@ -20,9 +20,6 @@ app.use('/api/users', authMiddleware, userRoutes);
 
 connectDB();
 
-app.get('/api/ping', (req, res) => {
-  res.json({ msg: 'pong from server' });
-});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
