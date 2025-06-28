@@ -11,15 +11,9 @@ const authMiddleware = require('./middleware/authMiddleware');
 dotenv.config();
 const app = express();
 
-// Enable CORS for all routes - Updated to include HTTPS localhost:8080
+// Enable CORS for all routes
 app.use(cors({
-  origin: [
-    'http://localhost:8080', 
-    'https://localhost:8080',
-    'http://localhost:3000', 
-    'http://localhost:5173',
-    'https://localhost:5173'
-  ],
+  origin: ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:5173'],
   credentials: true
 }));
 
