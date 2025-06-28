@@ -26,6 +26,7 @@ const VansPage = () => {
   
   const [vans, setVans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showDesktopSidebar, setShowDesktopSidebar] = useState(true);
@@ -33,15 +34,30 @@ const VansPage = () => {
   useEffect(() => {
     async function fetchVans() {
       try {
+        setLoading(true);
+        setError(null);
+        
+        // Test API connection first
+        const API_URL = import.meta.env.VITE_API_URL;
+        console.log('API URL:', API_URL);
+        
+        const testResponse = await fetch(`${API_URL}/test`);
+        if (testResponse.ok) {
+          console.log('API connection successful');
+        }
+        
         const data = await getVans();
         console.log("Fetched vans:", data);
+        
         if (Array.isArray(data)) {
-          setVans(data);  // Ensure we only set vans if the data is an array
+          setVans(data);
         } else {
           console.error("Fetched data is not an array:", data);
+          setError("Invalid data format received from server");
         }
       } catch (err) {
         console.error("Error fetching vans:", err);
+        setError("Failed to connect to server. Please make sure the backend is running.");
       } finally {
         setLoading(false);
       }
@@ -90,7 +106,30 @@ const VansPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vanscape-blue mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading vans...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <h1 className="text-2xl font-bold mb-4 text-red-600">Connection Error</h1>
+          <p className="mb-6 text-gray-600">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -99,7 +138,7 @@ const VansPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-vanscape-charcoal dark:text-white">Browse Our Vans</h1>
           <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">
-            Find the perfect van for your next adventure
+            Find the perfect van for your next adventure ({vans.length} vans available)
           </p>
         </div>
       </div>
