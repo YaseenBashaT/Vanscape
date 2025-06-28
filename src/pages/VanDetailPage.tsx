@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { getVanById } from "@/lib/getVans";
 
 const VanDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,27 +33,26 @@ const VanDetailPage = () => {
   useEffect(() => {
     const fetchVan = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL;
-        const response = await fetch(`${API_URL}/van/${id}`);
+        setLoading(true);
+        setError(null);
         
-        if (!response.ok) {
-          throw new Error('Van not found');
+        if (!id) {
+          throw new Error('Van ID is required');
         }
         
-        const data = await response.json();
-        console.log('Fetched van:', data);
+        console.log('Fetching van with ID:', id);
+        const data = await getVanById(id);
+        console.log('Fetched van data:', data);
         setVan(data);
       } catch (err) {
         console.error('Error fetching van:', err);
-        setError('Failed to load van details');
+        setError(err instanceof Error ? err.message : 'Failed to load van details');
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchVan();
-    }
+    fetchVan();
   }, [id]);
 
   const handleStartDateChange = (date: Date | undefined) => {
@@ -88,6 +88,7 @@ const VanDetailPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Van Not Found</h1>
           <p className="mb-6">Sorry, we couldn't find the van you're looking for.</p>
+          <p className="text-sm text-gray-500 mb-6">Error: {error}</p>
           <Link to="/vans">
             <Button>
               <ChevronLeft className="mr-2 h-4 w-4" />

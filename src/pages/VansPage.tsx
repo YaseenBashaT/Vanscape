@@ -26,6 +26,7 @@ const VansPage = () => {
   
   const [vans, setVans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showDesktopSidebar, setShowDesktopSidebar] = useState(true);
@@ -33,15 +34,25 @@ const VansPage = () => {
   useEffect(() => {
     async function fetchVans() {
       try {
+        setLoading(true);
+        setError(null);
+        console.log("Starting to fetch vans...");
+        
         const data = await getVans();
-        console.log("Fetched vans:", data);
+        console.log("Fetched vans data:", data);
+        
         if (Array.isArray(data)) {
-          setVans(data);  // Ensure we only set vans if the data is an array
+          setVans(data);
+          console.log("Successfully set vans:", data.length, "vans");
         } else {
           console.error("Fetched data is not an array:", data);
+          setError("Invalid data format received from server");
+          setVans([]);
         }
       } catch (err) {
-        console.error("Error fetching vans:", err);
+        console.error("Error in fetchVans:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch vans");
+        setVans([]);
       } finally {
         setLoading(false);
       }
@@ -90,7 +101,32 @@ const VansPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vanscape-blue mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading vans...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-red-800 mb-2">Error Loading Vans</h2>
+            <p className="text-red-600 mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -101,6 +137,11 @@ const VansPage = () => {
           <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">
             Find the perfect van for your next adventure
           </p>
+          {vans.length > 0 && (
+            <p className="text-sm text-gray-500 mt-1">
+              Found {vans.length} vans available
+            </p>
+          )}
         </div>
       </div>
       
