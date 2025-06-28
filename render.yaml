@@ -3,7 +3,7 @@ services:
     name: vanscape-backend
     env: node
     plan: free
-    buildCommand: apt-get update && apt-get install -y findutils && npm install --legacy-peer-deps
+    buildCommand: npm install --legacy-peer-deps
     startCommand: node index.js
     envVars:
       - key: MONGO_URI
